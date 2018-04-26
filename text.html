@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    {{ message }}
+    <div>
+        {{msg1}}
+        <div v-on:click="counter += 1">{{msg2}}{{counter}}</div>
+    </div>
+    <div>{{msg3}}</div>
+</div>
+<script src="./vue.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue!',
+            msg1:'杨',
+            msg2:'彬彬',
+            msg3:'你好',
+            counter:0,
+        },
+
+    })
+</script>
+</body>
+</html>

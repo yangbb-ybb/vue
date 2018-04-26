@@ -17,18 +17,19 @@
 
 // these helpers produces better vm code in JS engines due to their
 // explicitness and function inlining
+    //判断undefind
     function isUndef (v) {
         return v === undefined || v === null
     }
-
+    //定义过的变量
     function isDef (v) {
         return v !== undefined && v !== null
     }
-
+    //等于true
     function isTrue (v) {
         return v === true
     }
-
+    //等于false
     function isFalse (v) {
         return v === false
     }
@@ -36,6 +37,7 @@
     /**
      * Check if value is primitive
      */
+    //判断变量的类型 是不是基础类型
     function isPrimitive (value) {
         return (
             typeof value === 'string' ||
@@ -51,6 +53,7 @@
      * Objects from primitive values when we know the value
      * is a JSON-compliant type.
      */
+    //简单的判断一个object类型的变量  并且不是null
     function isObject (obj) {
         return obj !== null && typeof obj === 'object'
     }
@@ -58,8 +61,9 @@
     /**
      * Get the raw type string of a value e.g. [object Object]
      */
+    //定义一个函数，这个函数是  object的toString方法 --->可以判断一个变量的类型
     var _toString = Object.prototype.toString;
-
+    //[object,  --->调用tostring方法 去得到 一个object的类型
     function toRawType (value) {
         return _toString.call(value).slice(8, -1)
     }
@@ -68,10 +72,11 @@
      * Strict object type check. Only returns true
      * for plain JavaScript objects.
      */
+    //判断一个对象是object
     function isPlainObject (obj) {
         return _toString.call(obj) === '[object Object]'
     }
-
+    //判断一个变量是正则
     function isRegExp (v) {
         return _toString.call(v) === '[object RegExp]'
     }
@@ -79,14 +84,18 @@
     /**
      * Check if val is a valid array index.
      */
+    //好吧 大佬 我服了
+    //parseFloat 接受一个字符串 所以他用了String函数
     function isValidArrayIndex (val) {
         var n = parseFloat(String(val));
+        //n>0  n是整数就执行  isFinite函数
         return n >= 0 && Math.floor(n) === n && isFinite(val)
     }
 
     /**
      * Convert a value to a string that is actually rendered.
      */
+    //把一个变量字符串化  涨姿势了
     function toString (val) {
         return val == null
             ? ''
@@ -99,6 +108,7 @@
      * Convert a input value to a number for persistence.
      * If the conversion fails, return original string.
      */
+    //把一个变量变成数字
     function toNumber (val) {
         var n = parseFloat(val);
         return isNaN(n) ? val : n
@@ -125,16 +135,22 @@
     /**
      * Check if a tag is a built-in tag.
      */
+    //English 直译  原谅我可怜的英语等级
+    //检测 一个标签是否是已经建立的标签
+    //返回 function (val) { return map[val.toLowerCase()]; }
+        //此处有闭包  map函数是{slot:true,component:true}
     var isBuiltInTag = makeMap('slot,component', true);
 
     /**
      * Check if a attribute is a reserved attribute.
      */
+    //检测属性
     var isReservedAttribute = makeMap('key,ref,slot,slot-scope,is');
 
     /**
      * Remove an item from an array
      */
+    //从数组中移除item一项 返回被 切的数组
     function remove (arr, item) {
         if (arr.length) {
             var index = arr.indexOf(item);
@@ -147,6 +163,7 @@
     /**
      * Check whether the object has the property.
      */
+    //hasOwnProperty函数 检测当前属性是否是 私有属性
     var hasOwnProperty = Object.prototype.hasOwnProperty;
     function hasOwn (obj, key) {
         return hasOwnProperty.call(obj, key)
@@ -155,6 +172,8 @@
     /**
      * Create a cached version of a pure function.
      */
+    //用闭包 缓存一个缓存数据在内存里面
+    //一般来说 问题不大  看来闭包的使用
     function cached (fn) {
         var cache = Object.create(null);
         return (function cachedFn (str) {
@@ -166,6 +185,10 @@
     /**
      * Camelize a hyphen-delimited string.
      */
+    //正则 匹配数字
+    //若匹配到了位置(说明有)--->转成大写
+    //若没有匹配到 直接返回一个空的数组
+    //--->  aaa-a --->aaaA
     var camelizeRE = /-(\w)/g;
     var camelize = cached(function (str) {
         return str.replace(camelizeRE, function (_, c) { return c ? c.toUpperCase() : ''; })
@@ -174,6 +197,7 @@
     /**
      * Capitalize a string.
      */
+    //查看字符串 是否出现在 闭包里面
     var capitalize = cached(function (str) {
         return str.charAt(0).toUpperCase() + str.slice(1)
     });
@@ -181,6 +205,7 @@
     /**
      * Hyphenate a camelCase string.
      */
+    //还原
     var hyphenateRE = /\B([A-Z])/g;
     var hyphenate = cached(function (str) {
         return str.replace(hyphenateRE, '-$1').toLowerCase()
@@ -208,7 +233,7 @@
         boundFn._length = fn.length;
         return boundFn
     }
-
+    //主要为函数绑定 ctx --->未知的变量
     function nativeBind (fn, ctx) {
         return fn.bind(ctx)
     }
@@ -243,6 +268,7 @@
     /**
      * Merge an Array of Objects into a single Object.
      */
+    //大致上是讲一个数组变成 一个对象
     function toObject (arr) {
         var res = {};
         for (var i = 0; i < arr.length; i++) {
@@ -283,15 +309,18 @@
      * Check if two values are loosely equal - that is,
      * if they are plain objects, do they have the same shape?
      */
+    //检测两个值是否相等
     function looseEqual (a, b) {
-        if (a === b) { return true }
+        //若a===b  说明是相等
+        if (a === b) { return true }  //地址什么的 相同
         var isObjectA = isObject(a);
         var isObjectB = isObject(b);
-        if (isObjectA && isObjectB) {
+        if (isObjectA && isObjectB) {//若是object 对象
             try {
                 var isArrayA = Array.isArray(a);
                 var isArrayB = Array.isArray(b);
-                if (isArrayA && isArrayB) {
+                if (isArrayA && isArrayB) {//若a 和 b 都是 数组
+
                     return a.length === b.length && a.every(function (e, i) {
                         return looseEqual(e, b[i])
                     })
@@ -326,6 +355,7 @@
     /**
      * Ensure a function is called only once.
      */
+    //使用闭包  来确保 函数 只被调用过 一次
     function once (fn) {
         var called = false;
         return function () {
@@ -343,7 +373,7 @@
         'directive',
         'filter'
     ];
-
+    //生命周期 事件钩子
     var LIFECYCLE_HOOKS = [
         'beforeCreate',
         'created',
@@ -353,9 +383,9 @@
         'updated',
         'beforeDestroy',
         'destroyed',
-        'activated',
-        'deactivated',
-        'errorCaptured'
+        'activated',     //使活跃
+        'deactivated',   //停用
+        'errorCaptured'  //错误捕获
     ];
 
     /*  */
@@ -365,6 +395,7 @@
          * Option merge strategies (used in core/util/options)
          */
         // $flow-disable-line
+        //在定义变量的时候其实是可以直接使用函数
         optionMergeStrategies: Object.create(null),
 
         /**
@@ -453,6 +484,7 @@
     /**
      * Check if a string starts with $ or _
      */
+    //判断 是否是 _或者$ 开始
     function isReserved (str) {
         var c = (str + '').charCodeAt(0);
         return c === 0x24 || c === 0x5F
@@ -461,6 +493,7 @@
     /**
      * Define a property.
      */
+    //主要定义一个变量
     function def (obj, key, val, enumerable) {
         Object.defineProperty(obj, key, {
             value: val,
@@ -509,7 +542,7 @@
     var nativeWatch = ({}).watch;
 
     var supportsPassive = false;
-    if (inBrowser) {
+    if (inBrowser) {//提升 移动端 性能优化
         try {
             var opts = {};
             Object.defineProperty(opts, 'passive', ({
@@ -553,6 +586,7 @@
 
     var _Set;
     /* istanbul ignore if */ // $flow-disable-line
+    // 可能需要的重定义  Set 方法 (不完整版的Set 函数)
     if (typeof Set !== 'undefined' && isNative(Set)) {
         // use native Set when available.
         _Set = Set;
@@ -577,7 +611,7 @@
     }
 
     /*  */
-
+    //  不怎么重要的  提示代码  和 一些操作
     var warn = noop;
     var tip = noop;
     var generateComponentTrace = (noop); // work around flow check
@@ -607,7 +641,7 @@
                 ));
             }
         };
-
+        //格式化容器名
         formatComponentName = function (vm, includeFile) {
             if (vm.$root === vm) {
                 return '<Root>'
@@ -679,6 +713,9 @@
      * A dep is an observable that can have multiple
      * directives subscribing to it.
      */
+    /**
+     * dep 是一个多个指令 订阅的观察者
+     */
     var Dep = function Dep () {
         this.id = uid++;
         this.subs = [];
@@ -697,7 +734,8 @@
             Dep.target.addDep(this);
         }
     };
-
+    //观察者 当数据改变的 时候改变   他的每个子项的  updata 函数
+    //应该 是 触发更新  函数
     Dep.prototype.notify = function notify () {
         // stabilize the subscriber list first
         var subs = this.subs.slice();
@@ -711,7 +749,7 @@
 // watcher being evaluated at any time.
     Dep.target = null;
     var targetStack = [];
-
+    //这里的参数就是vue的虚拟dom _vnode
     function pushTarget (_target) {
         if (Dep.target) { targetStack.push(Dep.target); }
         Dep.target = _target;
@@ -722,7 +760,7 @@
     }
 
     /*  */
-
+    //vNode  vue的虚拟dom
     var VNode = function VNode (
         tag,
         data,
@@ -830,6 +868,8 @@
      */
     methodsToPatch.forEach(function (method) {
         // cache original method
+        // array.proto 是 数组的prototype方法
+        //去除当前的 对应的方法
         var original = arrayProto[method];
         def(arrayMethods, method, function mutator () {
             var args = [], len = arguments.length;
@@ -849,6 +889,7 @@
             }
             if (inserted) { ob.observeArray(inserted); }
             // notify change
+            //当调用 这些 内置的 方法的时候 会调用 notify 方法
             ob.dep.notify();
             return result
         });
@@ -875,6 +916,7 @@
      * collect dependencies and dispatch updates.
      */
     var Observer = function Observer (value) {
+        //value 为需要绑定的  数据
         this.value = value;
         this.dep = new Dep();
         this.vmCount = 0;
@@ -940,11 +982,14 @@
      * returns the new observer if successfully observed,
      * or the existing observer if the value already has one.
      */
+    //这一段先留着 ---> 等用到的时候再看
     function observe (value, asRootData) {
+        //若不是对象 或者 继承于 VNode
         if (!isObject(value) || value instanceof VNode) {
             return
         }
         var ob;
+        //若 对象 有__ob__属性
         if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
             ob = value.__ob__;
         } else if (
@@ -1029,12 +1074,15 @@
      * triggers change notification if the property doesn't
      * already exist.
      */
+    //可能是调用 $set的时候调用的
     function set (target, key, val) {
-        if ("development" !== 'production' &&
+        console.log(target,key,val)
+        if ("development" !== 'production' && //前面的那个条件是 干什么的 完全不知道
             (isUndef(target) || isPrimitive(target))
-        ) {
+        ) {//嗯   反正是 异常处理   一般是却不会进来的
             warn(("Cannot set reactive property on undefined, null, or primitive value: " + ((target))));
         }
+        //
         if (Array.isArray(target) && isValidArrayIndex(key)) {
             target.length = Math.max(target.length, key);
             target.splice(key, 1, val);
@@ -1133,11 +1181,12 @@
     /**
      * Helper that recursively merges two data objects together.
      */
+    //内部 函数  合并两个对象
     function mergeData (to, from) {
         if (!from) { return to }
         var key, toVal, fromVal;
-        var keys = Object.keys(from);
-        for (var i = 0; i < keys.length; i++) {
+        var keys = Object.keys(from);//得到 下标
+        for (var i = 0; i < keys.length; i++) {//循环 遍历每个数据
             key = keys[i];
             toVal = to[key];
             fromVal = from[key];
@@ -1269,6 +1318,7 @@
      * Watchers hashes should not overwrite one
      * another, so we merge them as arrays.
      */
+    //观察 函数
     strats.watch = function (
         parentVal,
         childVal,
@@ -1912,12 +1962,13 @@
 
         var hasProxy =
             typeof Proxy !== 'undefined' && isNative(Proxy);
-
+        // 代理
         if (hasProxy) {
+            //makeMap函数 把第一个参数 放入对象里面
             var isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact');
             config.keyCodes = new Proxy(config.keyCodes, {
                 set: function set (target, key, value) {
-                    if (isBuiltInModifier(key)) {
+                    if (isBuiltInModifier(key)) {//已经有
                         warn(("Avoid overwriting built-in modifier in config.keyCodes: ." + key));
                         return false
                     } else {
@@ -3134,6 +3185,7 @@
     /**
      * Evaluate the getter, and re-collect dependencies.
      */
+    //插入节点
     Watcher.prototype.get = function get () {
         pushTarget(this);
         var value;

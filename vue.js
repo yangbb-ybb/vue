@@ -1733,15 +1733,17 @@
      * across different vms / iframes.
      */
     function getType (fn) {
-        var match = fn && fn.toString().match(/^\s*function (\w+)/);
-        return match ? match[1] : ''
+        var match = fn && fn.toString().match(/^\s*function (\w+)/);//若正则 判断 是一个函数
+        return match ? match[1] : ''//若找到 函数  含税函数名
     }
-
+    //判断 函数的 名称是否是同一个
     function isSameType (a, b) {
         return getType(a) === getType(b)
     }
 
     function getTypeIndex (type, expectedTypes) {
+        //简单运用里面 没有用到它
+        //若是数组
         if (!Array.isArray(expectedTypes)) {
             return isSameType(expectedTypes, type) ? 0 : -1
         }
@@ -1854,7 +1856,10 @@
 
 // Determine microtask defer implementation.
     /* istanbul ignore next, $flow-disable-line */
+    //测试 本地 是否有 Promise ---> peomise ES6
+    //若Promise存在 并且 是系统自带的 一个函数
     if (typeof Promise !== 'undefined' && isNative(Promise)) {
+        //去promise的 解决函数  这样可以得到一个Promise 函数
         var p = Promise.resolve();
         microTimerFunc = function () {
             p.then(flushCallbacks);
@@ -1863,7 +1868,9 @@
             // microtask queue but the queue isn't being flushed, until the browser
             // needs to do some other work, e.g. handle a timer. Therefore we can
             // "force" the microtask queue to be flushed by adding an empty timer.
-            if (isIOS) { setTimeout(noop); }
+            /// 他的 意思是 说ios中没有Promise吗
+            /// noop 是一个空的  函数
+            if (isIOS) { setTimeout(noop); }//手机平台
         };
     } else {
         // fallback to macro
@@ -1882,22 +1889,26 @@
             return res
         })
     }
-
+    // 预计是  下一帧  执行的动画
     function nextTick (cb, ctx) {
         var _resolve;
+        // callbacks是一个数组
         callbacks.push(function () {
-            if (cb) {
+            if (cb) {//若有cb 参数
                 try {
-                    cb.call(ctx);
+                    cb.call(ctx);//马上调用 ----->但是  是放在一个函数的里面 所以不会马上调用
                 } catch (e) {
+                    // 若发生错误 打印出错误信息
                     handleError(e, ctx, 'nextTick');
                 }
-            } else if (_resolve) {
+            } else if (_resolve) {// 当没有 cb 的时候  但是_resolve 是一个临时变量  肯定进不来 啊
                 _resolve(ctx);
             }
+            //就应该 加进来一个空的 函数
         });
+        // 当pending 是空的时候
         if (!pending) {
-            pending = true;
+            pending = true;  // ---->只能进来一次
             if (useMacroTask) {
                 macroTimerFunc();
             } else {
@@ -1981,7 +1992,9 @@
 
         var hasHandler = {
             has: function has (target, key) {
+                //检查 数组 或者 对象的 下标是否在 里面
                 var has = key in target;
+                //global  是否支持 当前的 方法
                 var isAllowed = allowedGlobals(key) || key.charAt(0) === '_';
                 if (!has && !isAllowed) {
                     warnNonPresent(target, key);
@@ -1991,6 +2004,7 @@
         };
 
         var getHandler = {
+            //  改写 get 方法
             get: function get (target, key) {
                 if (typeof key === 'string' && !(key in target)) {
                     warnNonPresent(target, key);

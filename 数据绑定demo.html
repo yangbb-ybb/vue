@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>myVue</title>
+</head>
+<style>
+    #app {
+        text-align: center;
+    }
+</style>
+<body>
+<div id="app">
+    <form>
+        <input type="text"  v-model="number">
+        <button type="button" v-click="increment">增加</button>
+    </form>
+    <h3 v-bind="number"></h3>
+</div>
+</body>
+
+<script>
+    //构造函数 -->我自己的vue文件
+    function myVue(options) {
+        //在构造函数中 完成初始化函数
+        this._init(options);
+    }
+
+    myVue.prototype._init = function (options) {
+        /**
+         * 保存  记录
+         * */
+        this.$options = options;//保存options记录
+        this.$el = document.querySelector(options.el);//监听的那个元素
+        this.$data = options.data;//数据
+        this.$methods = options.methods;//方法
+
+        this._binding = {};//创建一个空的元素
+
+        this._obverse(this.$data); //观察每个属性
+        this._complie(this.$el);   //监听元素
+    }
+    // obj={ number: 0 }  ---> 这个应该  不靠谱  需要我了解原理后  去修正
+    // 目前只是 学习
+    myVue.prototype._obverse = function (obj) {//obj为 我的data属性
+        var value;
+        for (key in obj) {//obj
+            if (obj.hasOwnProperty(key)) {//若obj中有 key 代表的元素---> 为什么？循环遍历不是 所有的元素都有吗
+                this._binding[key] = {  //绑定watch
+                    _directives: []
+                };
+                value = obj[key];
+                // 就这一块  支撑不了  复杂的  逻辑
+                if (typeof value === 'object') {
+                    this._obverse(value);
+                }
+                var binding = this._binding[key];//得到 bind 函数中的 东西
+                //第二个bug ---> value 只是一个值---> 此处需要闭包
+                Object.defineProperty(this.$data, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get: function () {
+                        console.log(`获取${value}`);
+                        return value;
+                    },
+                    set: function (newVal) {
+                        console.log(`更新${newVal}`);
+                        if (value !== newVal) {
+                            value = newVal;
+                            binding._directives.forEach(function (item) {
+                                //console.log(item);
+                                //此处的item 是两个 监听对象
+                                item.update();
+                            })
+                        }
+                    }
+                })
+            }
+        }
+        //  console.log在chrome 中是是一个 对象的快照， 所以此处打印出来的东西是不对的
+        //console.log(this._binding,2222);//此处应该是 一个指针
+        //console.log(JSON.stringify(this._binding))
+    }
+    //root 元素是 一个dom 对象
+    myVue.prototype._complie = function (root) {
+        var _this = this;
+        //fuck 我居然已经忘了
+        //children dom 节点操作
+        var nodes = root.children;
+        //console.log(root,root.children);
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            if (node.children.length) {
+                this._complie(node);
+            }
+            //绑定 事件
+            if (node.hasAttribute('v-click')) {
+                node.onclick = (function () {
+                    var attrVal = nodes[i].getAttribute('v-click');
+                    //console.log(attrVal,'得到元素')
+                    //attrVal  事件 函数名称
+                    //当做新函数 返回去
+                    //绑定data 中的数据
+                    // 额~~ 这个有事一个坑了 估计
+                    return _this.$methods[attrVal].bind(_this.$data);
+                })();
+            }
+
+            if (node.hasAttribute('v-model') && (node.tagName = 'INPUT' || node.tagName == 'TEXTAREA')) {
+                //oninput 事件 input框 输入改变的时候出发
+                node.addEventListener('input', (function(key) {
+                    //得到  绑定的 名称
+                    var attrVal = node.getAttribute('v-model');
+                    //当前对象  绑定watch
+                    _this._binding[attrVal]._directives.push(new Watcher(
+                        'input',
+                        node,  //节点
+                        _this, //vue中的对象
+                        attrVal,//绑定的值
+                        'value'
+                    ))
+                    //闭包保存  变量
+                    //返回绑定是 事件
+                    return function() {
+                        _this.$data[attrVal] =  nodes[key].value;
+                    }
+                })(i));
+            }
+
+            if (node.hasAttribute('v-bind')) {
+                var attrVal = node.getAttribute('v-bind');
+                _this._binding[attrVal]._directives.push(new Watcher(
+                    'text',
+                    node,
+                    _this,
+                    attrVal,
+                    'innerHTML'
+                ))
+            }
+        }
+    }
+
+    function Watcher(name, el, vm, exp, attr) {
+        this.name = name;         //指令名称，例如文本节点，该值设为"text"
+        this.el = el;             //指令对应的DOM元素
+        this.vm = vm;             //指令所属myVue实例
+        this.exp = exp;           //指令对应的值，本例如"number"
+        this.attr = attr;         //绑定的属性值，本例为"innerHTML"
+
+        this.update();
+    }
+
+    Watcher.prototype.update = function () {
+        this.el[this.attr] = this.vm.$data[this.exp];
+        // 相当于 XX.innerHTML=XXX;
+    }
+
+    window.onload = function() {
+        var app = new myVue({
+            el:'#app',
+            data: {
+                number: 0,
+            },
+            methods: {
+                increment: function() {
+                    this.number ++;
+                },
+            }
+        })
+    }
+</script>

@@ -122,8 +122,9 @@
         str,
         expectsLowerCase
     ) {
+        //创建一个空的对象
         var map = Object.create(null);
-        var list = str.split(',');
+        var list = str.split(',');// 切割当前的 字符串 变成数组
         for (var i = 0; i < list.length; i++) {
             map[list[i]] = true;
         }
@@ -1916,8 +1917,11 @@
             }
         }
         // $flow-disable-line
+        // 若没有 cb 并且 Promise是系统自带的一个函数
         if (!cb && typeof Promise !== 'undefined') {
+            // 返回 promise 对象
             return new Promise(function (resolve) {
+                // 这里的 resolve 是 我们想要  .then的结果  我们可以直接调用 它 就可以
                 _resolve = resolve;
             })
         }
@@ -1929,6 +1933,7 @@
     var measure;
 
     {
+        // 在 游览器 中  并且 可以得到当前游览器 的 性能报告
         var perf = inBrowser && window.performance;
         /* istanbul ignore if */
         if (
@@ -1970,16 +1975,16 @@
                 target
             );
         };
-
+        // 检测  系统是否带有 Proxy 的函数 (是 系统函数)
         var hasProxy =
             typeof Proxy !== 'undefined' && isNative(Proxy);
         // 代理
         if (hasProxy) {
-            //makeMap函数 把第一个参数 放入对象里面
+            //makeMap函数 把第一个参数 放入对象里面   返回 的 对象  里面 存储着  就免的 值
             var isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact');
             config.keyCodes = new Proxy(config.keyCodes, {
                 set: function set (target, key, value) {
-                    if (isBuiltInModifier(key)) {//已经有
+                    if (isBuiltInModifier(key)) {//已经有  意思 就是  这些是 vue 关键字   是吧
                         warn(("Avoid overwriting built-in modifier in config.keyCodes: ." + key));
                         return false
                     } else {
@@ -2040,9 +2045,10 @@
         _traverse(val, seenObjects);
         seenObjects.clear();
     }
-
+    //未知 函数
     function _traverse (val, seen) {
         var i, keys;
+        // 预计 传递进来的val是 一个 数组类型的 变量----> 个人猜测的   可能 是 虚拟dom 什么的
         var isA = Array.isArray(val);
         if ((!isA && !isObject(val)) || Object.isFrozen(val) || val instanceof VNode) {
             return
@@ -2065,16 +2071,19 @@
     }
 
     /*  */
-
+    // cached  是 内存 中存储的  一个系统的变量(反正 都是猜测)
     var normalizeEvent = cached(function (name) {
         var passive = name.charAt(0) === '&';
+        //当传递  进来的 字串的 第一个 是& 的 时候  自动取第一个  不然就取整个
         name = passive ? name.slice(1) : name;
+        // 第二种 方案
         var once$$1 = name.charAt(0) === '~'; // Prefixed last, checked first
         name = once$$1 ? name.slice(1) : name;
+        // 第三种方案
         var capture = name.charAt(0) === '!';
         name = capture ? name.slice(1) : name;
         return {
-            name: name,
+            name: name,// name的最终结果   下面是 各种预计的  结果
             once: once$$1,
             capture: capture,
             passive: passive
@@ -2099,7 +2108,7 @@
         invoker.fns = fns;
         return invoker
     }
-
+    // 字面的  意思的 监听我们的更新
     function updateListeners (
         on,
         oldOn,
@@ -2279,6 +2288,7 @@
     }
 
     function normalizeArrayChildren (children, nestedIndex) {
+        //console.log(2222);
         var res = [];
         var i, c, lastIndex, last;
         for (i = 0; i < children.length; i++) {
@@ -2475,7 +2485,7 @@
     /*  */
 
     /*  */
-
+    // 初始化 event 函数  需传入 虚拟dom
     function initEvents (vm) {
         vm._events = Object.create(null);
         vm._hasHookEvent = false;
@@ -2487,7 +2497,7 @@
     }
 
     var target;
-
+    //添加事件的 函数 主要是为目标添加  各种事件
     function add (event, fn, once) {
         if (once) {
             target.$once(event, fn);
@@ -2495,7 +2505,7 @@
             target.$on(event, fn);
         }
     }
-
+    //移除  事件
     function remove$1 (event, fn) {
         target.$off(event, fn);
     }
@@ -2509,7 +2519,7 @@
         updateListeners(listeners, oldListeners || {}, add, remove$1, vm);
         target = undefined;
     }
-
+    //这里是我需要
     function eventsMixin (Vue) {
         var hookRE = /^hook:/;
         Vue.prototype.$on = function (event, fn) {
@@ -2581,7 +2591,7 @@
             }
             return vm
         };
-
+        // 可能是emit 函数
         Vue.prototype.$emit = function (event) {
             var vm = this;
             {
@@ -2764,16 +2774,18 @@
             if (vm._isBeingDestroyed) {
                 return
             }
+            // 当我需要  销毁vue实例的 时候  首先调用 beforeDestory
             callHook(vm, 'beforeDestroy');
             vm._isBeingDestroyed = true;
             // remove self from parent
             var parent = vm.$parent;
+            // 当当前的组件有父节点的 时候 并且 节点 没有被注销   直接移除 父节点的的 $children属性
             if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
                 remove(parent.$children, vm);
             }
             // teardown watchers
             if (vm._watcher) {
-                vm._watcher.teardown();
+                vm._watcher.teardown();// 英文 拆卸  不知道什么意思
             }
             var i = vm._watchers.length;
             while (i--) {
@@ -2802,7 +2814,7 @@
             }
         };
     }
-
+    // 创建
     function mountComponent (
         vm,
         el,
@@ -2829,22 +2841,23 @@
                 }
             }
         }
-        callHook(vm, 'beforeMount');
+        callHook(vm, 'beforeMount');// 调用创建 之前的全生命周期函数
 
-        var updateComponent;
+        var updateComponent;  //
         /* istanbul ignore if */
+        //console.log("development" !== 'production' , config.performance , mark)
+        //额 在我 游览器中第二个不符
         if ("development" !== 'production' && config.performance && mark) {
+            //"development" !== 'production' && config.performance && mark
             updateComponent = function () {
                 var name = vm._name;
                 var id = vm._uid;
                 var startTag = "vue-perf-start:" + id;
                 var endTag = "vue-perf-end:" + id;
-
                 mark(startTag);
                 var vnode = vm._render();
                 mark(endTag);
                 measure(("vue " + name + " render"), startTag, endTag);
-
                 mark(startTag);
                 vm._update(vnode, hydrating);
                 mark(endTag);
@@ -2866,11 +2879,12 @@
         // mounted is called for render-created child components in its inserted hook
         if (vm.$vnode == null) {
             vm._isMounted = true;
+            // 调用 mounted 生命周期函数
             callHook(vm, 'mounted');
         }
         return vm
     }
-
+    //更新 子节点 内容
     function updateChildComponent (
         vm,
         propsData,
@@ -2878,7 +2892,7 @@
         parentVnode,
         renderChildren
     ) {
-        {
+        {   //更新标志
             isUpdatingChildComponent = true;
         }
 
@@ -2924,7 +2938,7 @@
         listeners = listeners || emptyObject;
         var oldListeners = vm.$options._parentListeners;
         vm.$options._parentListeners = listeners;
-        updateComponentListeners(vm, listeners, oldListeners);
+        updateComponentListeners(vm, listeners, oldListeners);// 更新子节点的监听事件
 
         // resolve slots + force update if has children
         if (hasChildren) {
@@ -3114,6 +3128,7 @@
      * Jobs with duplicate IDs will be skipped unless it's
      * pushed when the queue is being flushed.
      */
+    //  vue 的 观察队列
     function queueWatcher (watcher) {
         var id = watcher.id;
         if (has[id] == null) {
@@ -3153,6 +3168,7 @@
         options,
         isRenderWatcher
     ) {
+        //这里应该是  观察者实例
         this.vm = vm;
         if (isRenderWatcher) {
             vm._watcher = this;
@@ -3431,12 +3447,14 @@
         for (var key in propsOptions) loop( key );
         toggleObserving(true);
     }
-
+    //  著名 的  变量初始化
     function initData (vm) {
         var data = vm.$options.data;
+        // data  必须是一个 函数   为了防止 几个 公用一个  引起操作重复
         data = vm._data = typeof data === 'function'
             ? getData(data, vm)
             : data || {};
+        //  若是 一个 对象 会引起  重复操作一个对象  so
         if (!isPlainObject(data)) {
             data = {};
             "development" !== 'production' && warn(
@@ -3446,13 +3464,13 @@
             );
         }
         // proxy data on instance
-        var keys = Object.keys(data);
-        var props = vm.$options.props;
-        var methods = vm.$options.methods;
-        var i = keys.length;
+        var keys = Object.keys(data);   //得到 data 的 键值  组成的 数组
+        var props = vm.$options.props;  //得到 prop值   一般来说  prep值  是父组件 传递过来的值
+        var methods = vm.$options.methods;      //这里是vue 对象里面的   方法
+        var i = keys.length; // 这里我们得到了
         while (i--) {
             var key = keys[i];
-            {
+            {   // 说明 method 与 data 不能名字 相同
                 if (methods && hasOwn(methods, key)) {
                     warn(
                         ("Method \"" + key + "\" has already been defined as a data property."),
@@ -3460,16 +3478,20 @@
                     );
                 }
             }
+            //说明 props 和 data 属性不能 相同 (props是父组件传递过来的 数据)
             if (props && hasOwn(props, key)) {
                 "development" !== 'production' && warn(
                     "The data property \"" + key + "\" is already declared as a prop. " +
                     "Use prop default value instead.",
                     vm
                 );
-            } else if (!isReserved(key)) {
+            //////////////////////////看到了  这里了  重点/////////////////////////////////////////////
+            } else if (!isReserved(key)) { //  嗯
                 proxy(vm, "_data", key);
             }
         }
+        // 嗯 这是 vue 的最重要的 功能了 加油啊  少年 (掌握核心科技  未来就是 你的)
+        // 设置  一个观察者 对data 属相 进行相对应的  监听操作
         // observe data
         observe(data, true /* asRootData */);
     }

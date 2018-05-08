@@ -28,27 +28,37 @@
     })
 </script>
 <script>
-    var obj={}
-    ware('a')// 这里 应该 用邯山区调用  把每个属性都 绑定上去
-    function ware(key){
-        Object.defineProperty(obj, key, {
-            enumerable: true,
-            configurable: true,
-            get: function (){
-                console.log(123);
-                return this.key
-            },
-            set:(value)=> {
-                console.log(123)
-                obj.key=value;
-            }
-        })
-    }
+    // var obj={}
+    // ware('a')// 这里 应该 用邯山区调用  把每个属性都 绑定上去
+    // function ware(key){
+    //     Object.defineProperty(obj, key, {
+    //         enumerable: true,
+    //         configurable: true,
+    //         get: function (){
+    //             console.log(123);
+    //             return this.key
+    //         },
+    //         set:(value)=> {
+    //             console.log(123)
+    //             obj.key=value;
+    //         }
+    //     })
+    // }
     //这样新添加的元素是 加不进去的 所以在vue里面 若data 里面没有的  数据 需要  访问特定的函数
-    obj.b=123;
-    obj.b;
-    obj.a;
-    console.log(obj)
+    // obj.b=123;
+    // obj.b;
+    // obj.a;
+    //console.log(obj)
+    // function a(){
+    //     return new Promise(function (resolve) {
+    //         resolve();
+    //         //resolve是 我们想要的成功的回调
+    //     })
+    // }
+    // var b=a();
+    // console.log(b)
+    // b.then(()=>{console.log(23455)})
+    // console.log(b)
 </script>
 </body>
 </html>
